@@ -1,3 +1,4 @@
+import errno
 import logging
 import os
 import tempfile
@@ -95,16 +96,30 @@ def atomic_symlink(src, dst):
     The symlink is created or updated so that the operation appears atomic at the filesystem level."""
     dst_dir = os.path.dirname(dst)
     tmp = None
+    max_tries = getattr(os, 'TMP_MAX', 10000)
+
     try:
         if not os.path.exists(dst_dir):
             os.makedirs(dst_dir)
-        tmp = tempfile.mktemp(dir=dst_dir)
-        os.symlink(src, tmp)
-        os.rename(tmp, dst)
+        for n in range(max_tries):
+            try:
+                # mktemp is described as being unsafe. That is not true in this case since symlink is an
+                # atomic operation at the file system level; if some other processes creates a file with
+                # 'our' name then symlink will fail.
+                tmp = tempfile.mktemp(dir=dst_dir)
+                os.symlink(src, tmp)
+            except OSError as e:
+                if e.errno == errno.EEXIST:
+                    continue  # Someone else grabbed the temporary name first
+                else:
+                    raise
+            os.rename(tmp, dst)
+            return
     except:
         if tmp and os.path.exists(tmp):
             os.remove(tmp)
         raise
+    raise IOError, (errno.EEXIST, 'No usable temporary file name found')
 
 
 logger = logging.getLogger(__name__)

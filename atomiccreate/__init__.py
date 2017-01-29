@@ -5,7 +5,7 @@ import tempfile
 
 __author__ = 'Steve Marple'
 __version__ = '0.0.2'
-__license__ = 'PSF'
+__license__ = 'MIT'
 
 
 class smart_open:

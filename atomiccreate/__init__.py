@@ -1,3 +1,9 @@
+"""Create files and symbolic links in a way that appears to be an atomic file-system operation.
+
+It is sometimes useful that files and symbolic links are created with the intermediate write operations hidden.
+Temporary files and symbolic links are used and the final update operation is atomic.
+"""
+
 import errno
 import logging
 import os
@@ -9,26 +15,34 @@ __license__ = 'MIT'
 
 
 class smart_open:
-    """Smarter way to open files for writing.
+    """A smarter way to open files for writing.
 
-    This class mimics the behaviour of 'with open(file) as handle:'
+    This class mimics the behaviour of::
+
+        with open(filename) as handle:
+
     but with two additional benefits:
 
-    1. When opening a file for write access (including appending) the
-    parent directory will be created automatically if it does not
-    already exist.
+    1.  When opening a file for write access (including appending) the
+        parent directory will be created automatically if it does not
+        already exist.
 
-    2. When opening a file for write access it is created with a
-    temporary name (with same same extension) and if there are no errors it is
-    renamed automatically when closed. In the case of errors the
-    default is to delete the temporary file (set delete_temp_on_error
-    to False to keep the temporary file).
+    2.  When opening a file for write access it is created with a temporary
+        name (with same same extension) and if there are no errors it is renamed automatically
+        when closed. In the case of errors the default is to delete the temporary file,
+        to keep the temporary file call :py:func:`smart_open` with ``delete_temp_on_error=False``.
 
     The use of a temporary file is automatically disabled when the mode
-    includes 'r', 'x', 'a', or '+'. It can be prevented manually by
-    setting temp_ext to an empty string.
+    includes ``'r'``, ``'x'``, ``'a'``, or ``'+'``. It can be prevented manually by calling :py:func:`smart_open`
+    with ``use_temp=False``. When a temporary file is used it will be
+    deleted automatically if an exception occurs; this behaviour can be prevented by calling
+    with ``delete_temp_on_error=False``.
 
-    Example use
+    For security reasons the temporary files are created with restricted read and write permissions.
+    To maintain the atomic behaviour do not call :py:func:`os.chmod` after :py:func:`smart_open`, instead pass
+    the appropriate file mode permissions with ``chmod=perms``.
+
+    Example use::
 
         with smart_open('/tmp/dir/file.txt', 'w') as f:
             f.write('some text')
@@ -91,9 +105,10 @@ class smart_open:
 
 
 def atomic_symlink(src, dst):
-    """Create or update a symlink atomically.
+    """Create or update a symbolic link atomically.
 
-    The symlink is created or updated so that the operation appears atomic at the filesystem level."""
+    This function is similar to :py:func:`os.symlink` but will update a symlink atomically."""
+
     dst_dir = os.path.dirname(dst)
     tmp = None
     max_tries = getattr(os, 'TMP_MAX', 10000)

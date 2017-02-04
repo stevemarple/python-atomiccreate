@@ -134,7 +134,7 @@ def atomic_symlink(src, dst):
         if tmp and os.path.exists(tmp):
             os.remove(tmp)
         raise
-    raise IOError, (errno.EEXIST, 'No usable temporary file name found')
+    raise IOError(errno.EEXIST, 'No usable temporary file name found')
 
 
 logger = logging.getLogger(__name__)

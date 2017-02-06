@@ -39,7 +39,6 @@ setup(
     long_description=(read('README.rst') + '\n\n' +
                       read('AUTHORS.rst')),
     url='https://github.com/stevemarple/python-atomiccreate',
-    docs_url='http://atomiccreate.readthedocs.io/',
     license='MIT',
     author='Steve Marple',
     author_email='stevemarple@googlemail.com',

@@ -73,7 +73,7 @@ class smart_open:
 
     def __enter__(self):
         d = os.path.dirname(self.filename)
-        if (not os.path.exists(d) and
+        if (d and not os.path.exists(d) and
             ('w' in self.mode or 'x' in self.mode
              or 'a' in self.mode or '+' in self.mode)):
             logger.debug('creating directory %s', d)

@@ -128,6 +128,7 @@ def atomic_symlink(src, dst):
                     continue  # Someone else grabbed the temporary name first
                 else:
                     raise
+            logger.debug('renaming %s to %s', tmp, dst)
             os.rename(tmp, dst)
             return
     except:

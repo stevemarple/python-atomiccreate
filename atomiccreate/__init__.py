@@ -123,6 +123,7 @@ def atomic_symlink(src, dst):
                 # 'our' name then symlink will fail.
                 tmp = tempfile.mktemp(dir=dst_dir)
                 os.symlink(src, tmp)
+                logger.debug('created symlink %s', tmp)
             except OSError as e:
                 if e.errno == errno.EEXIST:
                     continue  # Someone else grabbed the temporary name first

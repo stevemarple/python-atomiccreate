@@ -61,7 +61,14 @@ class smart_open:
         self.filename = filename
         self.mode = mode
         self.delete_temp_on_error = delete_temp_on_error
-        self.chmod = chmod
+        if chmod is None:
+            # Must set umask to find current umask
+            current_umask = os.umask(0)
+            os.umask(current_umask)
+            self.chmod = (~current_umask & 0o666)  # No execute, read and write as umask allows
+        else:
+            self.chmod = chmod
+
         self.file = None
 
         if use_temp and cannot_use_temp:

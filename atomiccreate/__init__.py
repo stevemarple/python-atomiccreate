@@ -10,7 +10,7 @@ import os
 import tempfile
 
 __author__ = 'Steve Marple'
-__version__ = '0.1.3'
+__version__ = '0.2.0'
 __license__ = 'MIT'
 
 

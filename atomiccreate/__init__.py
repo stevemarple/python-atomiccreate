@@ -28,9 +28,10 @@ class smart_open:
         already exist.
 
     2.  When opening a file for write access it is created with a temporary
-        name (with same same extension) and if there are no errors it is renamed automatically
+        name (with a .tmp extension) and if there are no errors it is renamed automatically
         when closed. In the case of errors the default is to delete the temporary file,
         to keep the temporary file call :py:func:`smart_open` with ``delete_temp_on_error=False``.
+        The temporary extension can be overridden with the ``temp_ext`` parameter.
 
     The use of a temporary file is automatically disabled when the mode
     includes ``'r'``, ``'x'``, ``'a'``, or ``'+'``. It can be prevented manually by calling :py:func:`smart_open`
@@ -54,7 +55,8 @@ class smart_open:
                  mode='r',
                  use_temp=None,
                  delete_temp_on_error=True,
-                 chmod=None):
+                 chmod=None,
+                 temp_ext='.tmp'):
         # Modes which rely on an existing file should not change the name
         cannot_use_temp = 'r' in mode or 'x' in mode or 'a' in mode or '+' in mode
 
@@ -70,6 +72,7 @@ class smart_open:
             self.chmod = chmod
 
         self.file = None
+        self.temp_ext = temp_ext
 
         if use_temp and cannot_use_temp:
             raise ValueError('cannot use temporary file with mode "%s"' % mode)
@@ -86,9 +89,8 @@ class smart_open:
             logger.debug('creating directory %s', d)
             os.makedirs(d)
         if self.use_temp:
-            s = os.path.splitext(self.filename)[1]
             d = os.path.dirname(self.filename)
-            self.file = tempfile.NamedTemporaryFile(self.mode, suffix=s, dir=d, delete=False)
+            self.file = tempfile.NamedTemporaryFile(self.mode, suffix=self.temp_ext, dir=d, delete=False)
         else:
             self.file = open(self.filename, self.mode)
         return self.file
